@@ -133,6 +133,22 @@ def build_day_rows(day_value):
     return result
 
 
+def build_tables_for_day(day_value, chunk_size=8):
+    rows = build_day_rows(day_value)
+    tables = []
+    if not rows:
+        return tables
+    total_groups = len(groups)
+    for start in range(0, total_groups, chunk_size):
+        group_slice = groups[start : start + chunk_size]
+        table_rows = []
+        for r in rows:
+            courses_slice = r["courses"][start : start + chunk_size]
+            table_rows.append({"time": r["time"], "courses": courses_slice})
+        tables.append({"groups": group_slice, "rows": table_rows})
+    return tables
+
+
 refresh_data(EXCEL_PATH_DEFAULT)
 
 
@@ -160,10 +176,10 @@ def teacher_schedule():
     name = request.args.get("teacher")
     if not name:
         return "Не выбран день недели", 400
-    rows = build_day_rows(name)
-    if not rows:
+    tables = build_tables_for_day(name)
+    if not tables:
         return "没有找到该教师的课程", 404
-    return render_template("schedule.html", teacher=name, groups=groups, rows=rows)
+    return render_template("schedule.html", teacher=name, tables=tables)
 
 
 @app.route("/teacher/pdf")
@@ -171,10 +187,10 @@ def teacher_schedule_pdf():
     name = request.args.get("teacher")
     if not name:
         return "Не выбран день недели", 400
-    rows = build_day_rows(name)
-    if not rows:
+    tables = build_tables_for_day(name)
+    if not tables:
         return "没有找到该教师的课程", 404
-    html = render_template("schedule.html", teacher=name, groups=groups, rows=rows)
+    html = render_template("schedule.html", teacher=name, tables=tables)
 
     wkhtml_path = os.environ.get("WKHTMLTOPDF_PATH")
     try:
@@ -182,7 +198,16 @@ def teacher_schedule_pdf():
             config = pdfkit.configuration(wkhtmltopdf=wkhtml_path)
         else:
             config = pdfkit.configuration()
-        pdf_bytes = pdfkit.from_string(html, False, configuration=config)
+        options = {
+            "page-size": "A3",
+            "orientation": "Landscape",
+            "encoding": "UTF-8",
+            "margin-top": "5mm",
+            "margin-right": "5mm",
+            "margin-bottom": "5mm",
+            "margin-left": "5mm",
+        }
+        pdf_bytes = pdfkit.from_string(html, False, configuration=config, options=options)
     except Exception:
         return "На сервере не установлен wkhtmltopdf, экспорт PDF недоступен.", 500
 

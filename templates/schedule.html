@@ -33,7 +33,7 @@
       .table-wrapper {
         width: 100%;
         max-width: none;
-        margin: 0;
+        margin: 0 0 16px 0;
       }
       table {
         border-collapse: collapse;
@@ -59,18 +59,19 @@
         <button type="submit">Скачать PDF</button>
       </form>
     </div>
+    {% for table in tables %}
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
             <th>Время</th>
-            {% for g in groups %}
+            {% for g in table.groups %}
             <th>{{ g }}</th>
             {% endfor %}
           </tr>
         </thead>
         <tbody>
-          {% for row in rows %}
+          {% for row in table.rows %}
           <tr>
             <td>{{ row.time }}</td>
             {% for c in row.courses %}
@@ -81,5 +82,6 @@
         </tbody>
       </table>
     </div>
+    {% endfor %}
   </body>
 </html>
