@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>教师课程表生成</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f5f5f5;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "DejaVu Sans", Arial, sans-serif;
+      }
+      .card {
+        background: #ffffff;
+        padding: 24px 32px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        min-width: 320px;
+        max-width: 480px;
+      }
+      h1 {
+        margin-top: 0;
+        margin-bottom: 16px;
+        font-size: 22px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+      select {
+        width: 100%;
+        padding: 8px 10px;
+        font-size: 14px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        margin-bottom: 16px;
+      }
+      button {
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        background-color: #1976d2;
+        color: #ffffff;
+      }
+      button:hover {
+        background-color: #1565c0;
+      }
+      .info {
+        font-size: 13px;
+        margin-bottom: 8px;
+        color: #555;
+      }
+      .success {
+        font-size: 13px;
+        margin-bottom: 8px;
+        color: #2e7d32;
+      }
+      .error {
+        font-size: 13px;
+        margin-bottom: 8px;
+        color: #c62828;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>教师课程表生成</h1>
+      {% if current_file_name %}
+      <div class="info">当前课表: {{ current_file_name }}</div>
+      {% endif %}
+      {% if request.args.get('uploaded') %}
+      <div class="success">课表上传并加载成功</div>
+      {% elif request.args.get('error') %}
+      <div class="error">课表上传失败，请检查文件格式</div>
+      {% endif %}
+      <form action="/upload" method="post" enctype="multipart/form-data" style="margin-bottom: 16px;">
+        <label for="file">上传课表文件（Excel）:</label>
+        <input id="file" type="file" name="file" accept=".xlsx,.xls" style="margin-bottom: 12px;">
+        <button type="submit">上传并加载</button>
+      </form>
+      <hr style="margin: 16px 0;">
+      <form action="/teacher" method="get">
+        <label for="teacher">选择星期 / Select day / Выберите день:</label>
+        <select id="teacher" name="teacher">
+          {% for t in teachers %}
+          <option value="{{ t }}">{{ t }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit">预览课程表</button>
+      </form>
+    </div>
+  </body>
+</html>
