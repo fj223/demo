@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Генератор расписания занятий</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f5f5f5;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "DejaVu Sans", Arial, sans-serif;
+      }
+      .card {
+        background: #ffffff;
+        padding: 24px 32px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        min-width: 320px;
+        max-width: 480px;
+      }
+      h1 {
+        margin-top: 0;
+        margin-bottom: 16px;
+        font-size: 22px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+      select {
+        width: 100%;
+        padding: 8px 10px;
+        font-size: 14px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        margin-bottom: 16px;
+      }
+      button {
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        background-color: #1976d2;
+        color: #ffffff;
+      }
+      button:hover {
+        background-color: #1565c0;
+      }
+      .file-input {
+        display: none;
+      }
+      .file-label {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 8px;
+        font-size: 14px;
+        border-radius: 4px;
+        border: 1px solid #1976d2;
+        color: #1976d2;
+        background-color: #ffffff;
+        cursor: pointer;
+      }
+      .file-label:hover {
+        background-color: #e3f2fd;
+      }
+      .file-name {
+        display: block;
+        font-size: 13px;
+        color: #555;
+        margin-bottom: 8px;
+      }
+      .info {
+        font-size: 13px;
+        margin-bottom: 8px;
+        color: #555;
+      }
+      .success {
+        font-size: 13px;
+        margin-bottom: 8px;
+        color: #2e7d32;
+      }
+      .error {
+        font-size: 13px;
+        margin-bottom: 8px;
+        color: #c62828;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Генератор расписания занятий</h1>
+      {% if current_file_name %}
+      <div class="info">Текущий файл расписания: {{ current_file_name }}</div>
+      {% endif %}
+      {% if request.args.get('uploaded') %}
+      <div class="success">Файл расписания успешно загружен и обработан</div>
+      {% elif request.args.get('error') %}
+      <div class="error">Ошибка загрузки файла. Проверьте формат и структуру файла.</div>
+      {% endif %}
+      <form action="/upload" method="post" enctype="multipart/form-data" style="margin-bottom: 16px;">
+        <label for="file">Загрузить файл расписания (Excel):</label>
+        <input id="file" type="file" name="file" accept=".xlsx,.xls" class="file-input">
+        <label for="file" class="file-label">Выбрать файл</label>
+        <span id="file-name" class="file-name">Файл не выбран</span>
+        <button type="submit">Загрузить и применить</button>
+      </form>
+      <div class="info" style="margin-bottom: 16px;">
+        ВНИМАНИЕ: необходимо использовать расписание, подготовленное с помощью Power Query
+        (таблица с колонками Day / Time / группы). Иначе корректное формирование расписания
+        может быть невозможно.
+      </div>
+      <hr style="margin: 16px 0;">
+      <form action="/teacher" method="get">
+        <label for="teacher">Выберите день недели:</label>
+        <select id="teacher" name="teacher">
+          {% for t in teachers %}
+          <option value="{{ t }}">{{ t }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit">Показать расписание</button>
+      </form>
+    </div>
+    <script>
+      (function () {
+        var input = document.getElementById("file");
+        var label = document.querySelector("label[for='file'].file-label");
+        var nameSpan = document.getElementById("file-name");
+        if (!input || !label || !nameSpan) return;
+        input.addEventListener("change", function () {
+          if (input.files && input.files.length > 0) {
+            nameSpan.textContent = input.files[0].name;
+          } else {
+            nameSpan.textContent = "Файл не выбран";
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

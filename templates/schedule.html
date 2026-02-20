@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Расписание на день {{ teacher }}</title>
+    <style>
+      body {
+        margin: 16px 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "DejaVu Sans", Arial, sans-serif;
+        background: #f5f5f5;
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 16px;
+        font-size: 20px;
+      }
+      .download-bar {
+        text-align: center;
+        margin-bottom: 16px;
+      }
+      .download-bar button {
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        background-color: #1976d2;
+        color: #ffffff;
+      }
+      .download-bar button:hover {
+        background-color: #1565c0;
+      }
+      .table-wrapper {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        background: #ffffff;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 4px 6px;
+        font-size: 12px;
+      }
+      thead th {
+        background-color: #e0e0e0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Расписание занятий на день {{ teacher }}</h1>
+    <div class="download-bar">
+      <form action="/teacher/pdf" method="get">
+        <input type="hidden" name="teacher" value="{{ teacher }}">
+        <button type="submit">Скачать PDF</button>
+      </form>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Время</th>
+            {% for g in groups %}
+            <th>{{ g }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td>{{ row.time }}</td>
+            {% for c in row.courses %}
+            <td>{{ c }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
